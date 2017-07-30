@@ -452,7 +452,7 @@ void rb::HistSignals::CreateHistogram() {
 	};
 
 	Int_t type = rb::Rint::gApp()->fHistFrame->fTypeEntry->GetSelected();
-	Int_t bins[3] = { rb::Rint::gApp()->fHistFrame->fBinsX->GetNumber(), rb::Rint::gApp()->fHistFrame->fBinsY->GetNumber(), rb::Rint::gApp()->fHistFrame->fBinsZ->GetNumber() };
+	Int_t bins[3] = { static_cast<Int_t>( rb::Rint::gApp()->fHistFrame->fBinsX->GetNumber()), static_cast<Int_t>( rb::Rint::gApp()->fHistFrame->fBinsY->GetNumber() ), static_cast<Int_t>( rb::Rint::gApp()->fHistFrame->fBinsZ->GetNumber() ) };
 	Int_t evt = rb::Rint::gApp()->fHistFrame->fEventEntry->GetSelected();
 	Double_t low[3]  = { rb::Rint::gApp()->fHistFrame->fLowX->GetNumber(), rb::Rint::gApp()->fHistFrame->fLowY->GetNumber(), rb::Rint::gApp()->fHistFrame->fLowZ->GetNumber() };
 	Double_t high[3] = { rb::Rint::gApp()->fHistFrame->fHighX->GetNumber(), rb::Rint::gApp()->fHistFrame->fHighY->GetNumber(), rb::Rint::gApp()->fHistFrame->fHighZ->GetNumber() };
