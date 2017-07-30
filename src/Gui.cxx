@@ -593,6 +593,10 @@ void TGRbeerFrame::MakeConnections() {
 
 	RB_SIGNALS->Connect("Unattaching()", "TGTextButton", fUnattach, "ChangeBackground(=0xe0e0e0)");	
 	RB_SIGNALS->Connect("Unattaching()", "TGTextButton", fUnattach, "SetEnabled(=false)");
+	RB_SIGNALS->Connect("Unattaching()", "TGTextButton", fAttachFile, "SetEnabled(=true)");
+	RB_SIGNALS->Connect("Unattaching()", "TGTextButton", fAttachOnline, "SetEnabled(=true)");
+	RB_SIGNALS->Connect("Unattaching()", "TGTextButton", fAttachList, "SetEnabled(=true)");
+
 	RB_SIGNALS->Connect("Unattaching()", "TGTextButton", fIsContinuous, "SetEnabled(=true)");
 	RB_SIGNALS->Connect("Attaching()", "TGTextButton", fUnattach, "ChangeBackground(=0x00ff00)");
 	RB_SIGNALS->Connect("Attaching()", "TGTextButton", fUnattach, "SetEnabled(=true)");

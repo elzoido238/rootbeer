@@ -11,9 +11,31 @@
 #include "midas.h"
 #endif
 
+#ifndef ASYNC
+#ifdef  BM_NO_WAIT
+#define ASYNC BM_NO_WAIT
+#else
+#define ASYNC 1
+#endif
+#endif
 
+
+#ifndef SYNC
+#ifdef  BM_WAIT
+#define SYNC BM_WAIT
+#else
+#define SYNC 0
+#endif
+#endif
 
 rb::MidasBuffer* rb::MidasBuffer::fgInstance = 0;
+
+namespace {
+// Number of MIDAS connections made
+Int_t gNumConnections = 0;
+// Did we abort a connection?
+Bool_t gAbortedConnection = false;
+}
 
 
 rb::MidasBuffer::MidasBuffer(ULong_t size, Int_t trpStart, Int_t trpStop, Int_t trpPause, Int_t trpResume):
@@ -146,6 +168,28 @@ Bool_t rb::MidasBuffer::ConnectOnline(const char* host, const char* experiment, 
 	 *
 	 * See list below for what's specifically handled by this function.
 	 */
+
+	/// - Check if a connect/disconnect cycle has been made already. Strongly warn
+	///   if so.
+
+	if(gNumConnections != 0) {
+		Int_t r = -1;
+		{
+			err::InteractiveGuiWarning gw("rb::MidasBuffer::ConnectOnline", &r);
+			gw<< "MIDAS only supports one\nconnect/disconnect cycle per application. If you\n"
+				<< "try to reconnect it MIGHT work, but it also might not.\n\n"
+				<< "Do you want to continue with the connection?";
+		}
+
+		if(r==1) {
+			err::Info("ConnectOnline") << "Continuing with reconnection...";
+		} else {
+			err::Info("ConnectOnline") << "Aborting connection...";
+			gAbortedConnection = true;
+			return false;
+		}
+	}
+
 	INT status;
 	char systembuf[] = "SYSTEM";
 	fType = MidasBuffer::ONLINE;
@@ -172,7 +216,7 @@ Bool_t rb::MidasBuffer::ConnectOnline(const char* host, const char* experiment, 
 	}
 
 	/// - Connect to "SYSTEM" shared memory buffer
-  status = bm_open_buffer(systembuf, 2*MAX_EVENT_SIZE, &fBufferHandle);
+  status = bm_open_buffer(systembuf, 2*DEFAULT_MAX_EVENT_SIZE, &fBufferHandle);
 	if (status != CM_SUCCESS) {
 		err::Error("rb::MidasBuffer::ConnectOnline")
 			<< "Error opening \"" << systembuf << "\" shared memory buffer, status = "
@@ -218,12 +262,18 @@ Bool_t rb::MidasBuffer::ConnectOnline(const char* host, const char* experiment, 
 	if(status != CM_SUCCESS)
 		cm_msg(MERROR, "rootbeer", "Error reading from ODB, status = %d", status);
 
+	/// - Increase connections counter
+	++gNumConnections;
+
 	return true;
 }
 		
 void rb::MidasBuffer::DisconnectOnline()
 {
 	/*! Calls cm_disconnect_experiment() and run stop handler */
+
+	if(gAbortedConnection) return;
+
 	Int_t runnumber, isize = sizeof(Int_t), status;
 	status = db_get_value (fDb, 0, "/Runinfo/Run number",
 												 &runnumber, &isize, TID_INT, false);

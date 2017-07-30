@@ -63,6 +63,7 @@ echo -e  "... Done!\n"
 
 ##
 ## Check options
+# CXX=c++
 CXX=c++
 OPT=-O2
 DEBUG=-ggdb
@@ -75,26 +76,26 @@ do
     ##
     ## Check compiler
     if [[ "${!i}" == --with-compiler=* ]]
-	then CXX=`echo "${!i}" | awk -F = '{ print $2}'`
+    then CXX=`echo "${!i}" | awk -F = '{ print $2}'`
     fi
 
     ##
     ## Check optimization level
     if [[ "${!i}" == --with-optimize=* ]]
-	then
-	OPT=`echo "${!i}" | awk -F = '{ print $2}'`
-	if [[ $OPT < 0 ]]
-	then OPT=0
-	elif [[ $OPT > 3 ]]
-	then OPT=3
-	fi
-	OPT="-O"$OPT
+    then
+    OPT=`echo "${!i}" | awk -F = '{ print $2}'`
+    if [[ $OPT < 0 ]]
+    then OPT=0
+    elif [[ $OPT > 3 ]]
+    then OPT=3
+    fi
+    OPT="-O"$OPT
     fi
 
     ##
     ## Check debug flags
     if [[ "${!i}" == --with-debug=* ]]
-	then DEBUG=${DEBUG}" "`echo "${!i}" | awk -F = '{ print $2}'`
+    then DEBUG=${DEBUG}" "`echo "${!i}" | awk -F = '{ print $2}'`
     fi
 
     #
@@ -103,41 +104,41 @@ do
     DEFAULT_SAVE=.
     DEFAULT_CONFIG=.
     if [[ "${!i}" == --with-default-file=* ]]
-	then 
-	DEFAULT_FILE=`echo "${!i}" | awk -F = '{ print $2}'`
-	DEFAULTS="$DEFAULTS -DRB_DEFAULT_FILE_DIRECTORY=$DEFAULT_FILE"
+    then
+    DEFAULT_FILE=`echo "${!i}" | awk -F = '{ print $2}'`
+    DEFAULTS="$DEFAULTS -DRB_DEFAULT_FILE_DIRECTORY=$DEFAULT_FILE"
     fi
     if [[ "${!i}" == --with-default-save=* ]]
     then
-	DEFAULT_SAVE=`echo "${!i}" | awk -F = '{ print $2}'`
-	DEFAULTS="$DEFAULTS -DRB_DEFAULT_SAVE_DIRECTORY=$DEFAULT_SAVE"
+    DEFAULT_SAVE=`echo "${!i}" | awk -F = '{ print $2}'`
+    DEFAULTS="$DEFAULTS -DRB_DEFAULT_SAVE_DIRECTORY=$DEFAULT_SAVE"
     fi
     if [[ "${!i}" == --with-default-config=* ]]
     then
-	DEFAULT_CONFIG=`echo "${!i}" | awk -F = '{ print $2}'`
-	DEFAULTS="$DEFAULTS -DRB_DEFAULT_CONFIG_DIRECTORY=$DEFAULT_CONFIG"
+    DEFAULT_CONFIG=`echo "${!i}" | awk -F = '{ print $2}'`
+    DEFAULTS="$DEFAULTS -DRB_DEFAULT_CONFIG_DIRECTORY=$DEFAULT_CONFIG"
     fi
 
     ##
     ## Check for midas flag
     if [[ "${!i}" == --with-midas* ]]
     then
-	USE_MIDAS=1
-	LOCAL_MIDASSYS=`echo "${!i}" | awk -F = '{ print $2}'`
-	if [[ "$LOCAL_MIDASSYS" == "offline" ]]
-	then LOCAL_MIDASSYS=""
-	elif [[ "$LOCAL_MIDASSYS" == "" ]]
-	then LOCAL_MIDASSYS="$MIDASSYS"
-	fi
-	if [[ "$LOCAL_MIDASSYS" != "" ]]
-	then
-	    if [ "$UNAME" == "Darwin" ]
-	    then MIDASFLAGS="-DOS_DARWIN"
-	    elif [ "$UNAME" == "Linux" ]
-	    then MIDASFLAGS="-DOS_LINUX"
-	    fi
-	    MIDASFLAGS=${MIDASFLAGS}" -Dextname -I$LOCAL_MIDASSYS/include"
-	fi
+    USE_MIDAS=1
+    LOCAL_MIDASSYS=`echo "${!i}" | awk -F = '{ print $2}'`
+    if [[ "$LOCAL_MIDASSYS" == "offline" ]]
+    then LOCAL_MIDASSYS=""
+    elif [[ "$LOCAL_MIDASSYS" == "" ]]
+    then LOCAL_MIDASSYS="$MIDASSYS"
+    fi
+    if [[ "$LOCAL_MIDASSYS" != "" ]]
+    then
+        if [ "$UNAME" == "Darwin" ]
+        then MIDASFLAGS="-DOS_DARWIN"
+        elif [ "$UNAME" == "Linux" ]
+        then MIDASFLAGS="-DOS_LINUX"
+        fi
+        MIDASFLAGS=${MIDASFLAGS}" -Dexpname -I$LOCAL_MIDASSYS/include"
+    fi
     fi
     #
     # Increase counter
@@ -153,9 +154,9 @@ echo "Default config directory... $DEFAULT_CONFIG"
 if [[ USE_MIDAS != 0 ]]
 then
     if [[ "$LOCAL_MIDASSYS" != "" ]]
-	then echo "Compiling libRbMidas.so using $LOCAL_MIDASSYS"
+    then echo "Compiling libRbMidas.so using $LOCAL_MIDASSYS"
     else
-	echo "Compiling libRbMidas.so for offline analysis only."
+    echo "Compiling libRbMidas.so for offline analysis only."
     fi
 fi
 
@@ -175,7 +176,6 @@ do
     i=$((i+1))
 done
 echo -n -e "\n##\n\n" >> Makefile2
-
 
 SRC=$PWD/src
 OBJ=$PWD/obj
@@ -213,10 +213,10 @@ echo "RBlib: $RBLIB/libRootbeer.so" >>Makefile2
 #" >>Makefile2
 
 # $(OBJ)/midas/%.o: $(SRC)/midas/%.cxx $(CINT)/MidasDict.cxx
-# 	$(CXX) $(FPIC) $(MIDASFLAGS) -c $< \
+#   $(CXX) $(FPIC) $(MIDASFLAGS) -c $< \
 # -o $@  \
 
 # $(OBJ)/%.o: $(SRC)/%.cxx $(CINT)/RBDictionary.cxx
-# 	$(CXX) $(FPIC) -c $< \
+#   $(CXX) $(FPIC) -c $< \
 # -o $@  \
 echo $OBJDIRS

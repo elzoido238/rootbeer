@@ -207,7 +207,7 @@ public:
 	TH1* GetHist();
 
 	/// Clear function, zeros-out all axes of the internal histogram
-	virtual void Clear() { visit::hist::Clear::Do(fHistVariant); }
+	virtual void Clear(Option_t* option = "") { visit::hist::Clear::Do(fHistVariant); }
 
 	/// Return the number of dimensions.
 	UInt_t GetNdimensions() { return kDimensions; }
@@ -450,7 +450,7 @@ public:
   /// \brief XML constructor output
 	virtual void WriteXML(rb::XmlWriter*);
 	/// Override clear, needs to also set fNumEvents = 0
-	virtual void Clear();
+	virtual void Clear(Option_t* option = "");
 protected:
 	/// Constructor
 	Scaler (const char* name, const char* title, const char* param, const char* gate,

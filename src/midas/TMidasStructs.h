@@ -5,7 +5,11 @@
 #ifndef INCLUDE_TMidasBanksH
 #define INCLUDE_TMidasBanksH
 
-#include <stdint.h>
+// #include <stdint.h> <--- OS X 10.9 or later versions
+//                          of this are too complicated
+//                          for cint, so   |
+#include <_types/_uint16_t.h> //<----------|
+#include <_types/_uint32_t.h> //<---------/
 
 // This file defines the data structures written
 // into MIDAS .mid files. They define the on-disk

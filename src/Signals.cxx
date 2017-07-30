@@ -71,6 +71,10 @@ void rb::Signals::EnableSaveHists() {
 void rb::Signals::AttachOnline() {
 	rb::AttachOnline(rb::Rint::gApp()->fRbeerFrame->fEntryHost->GetText(),
 									 rb::Rint::gApp()->fRbeerFrame->fEntryPort->GetText());
+
+	rb::Rint::gApp()->fRbeerFrame->fAttachOnline->SetEnabled(kFALSE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachFile->SetEnabled(kFALSE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachList->SetEnabled(kFALSE);
 }
 
 void rb::Signals::AttachFile() {
@@ -87,6 +91,11 @@ void rb::Signals::AttachFile() {
 		 rb::AttachFile(fileInfo.fFilename, continuous);
 	rb::Rint::gApp()->fRbeerFrame->fAttachFile->SetDown(false);
 
+	rb::Rint::gApp()->fRbeerFrame->fAttachOnline->SetEnabled(kFALSE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachFile->SetEnabled(kFALSE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachList->SetEnabled(kFALSE);
+
+	rb::Rint::gApp()->fRbeerFrame->fUnattach->SetEnabled(kTRUE);
 }
 
 void rb::Signals::AttachList() {
@@ -104,9 +113,17 @@ void rb::Signals::AttachList() {
 	if(fileInfo.fFilename != 0)
 		 rb::AttachList(fileInfo.fFilename);
 	rb::Rint::gApp()->fRbeerFrame->fAttachList->SetDown(false);
+
+	rb::Rint::gApp()->fRbeerFrame->fAttachOnline->SetEnabled(kFALSE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachFile->SetEnabled(kFALSE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachList->SetEnabled(kFALSE);
 }
 void rb::Signals::Unattach() {
 	rb::Unattach();
+
+	rb::Rint::gApp()->fRbeerFrame->fAttachOnline->SetEnabled(kTRUE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachFile->SetEnabled(kTRUE);
+	rb::Rint::gApp()->fRbeerFrame->fAttachList->SetEnabled(kTRUE);
 }
 void rb::Signals::UpdateAll() {
 	rb::canvas::UpdateAll();
@@ -666,7 +683,7 @@ void rb::HistSignals::SyncHistMenu(rb::hist::Base* hist) {
 		code = 3;
 	}
 	else if(dynamic_cast<rb::hist::Summary*>(hist)) {
-		if(!dynamic_cast<rb::hist::Summary*>(hist)->GetOrientation()) {
+		if(dynamic_cast<rb::hist::Summary*>(hist)->GetOrientation()) {
 			rb::Rint::gApp()->fHistFrame->fTypeEntry->Select(4);
 			code = 4;
 		}
@@ -720,19 +737,33 @@ void rb::HistSignals::SyncHistMenu(rb::hist::Base* hist) {
 			{ rb::Rint::gApp()->fHistFrame->fBinsZ, rb::Rint::gApp()->fHistFrame->fLowZ, rb::Rint::gApp()->fHistFrame->fHighZ },
 		};
 
-		for(UInt_t ax = 0; ax < hist->GetNdimensions(); ++ax) {
-			if(boxes[ax] && boxes[ax]->GetTextEntry()) {
-				// params
-				boxes[ax]->GetTextEntry()->SetText(hist->GetParam(ax).c_str());
+		if(dynamic_cast<rb::hist::Summary*>(hist) == 0) {
+			for(UInt_t ax = 0; ax < hist->GetNdimensions(); ++ax) {
+				if(boxes[ax] && boxes[ax]->GetTextEntry()) {
+					// params
+					boxes[ax]->GetTextEntry()->SetText(hist->GetParam(ax).c_str());
 
-				// bins & range
-				Int_t nbins = axes[ax]->GetNbins();
-				numEntry[ax][0]->SetNumber(nbins);
-				numEntry[ax][1]->SetNumber(axes[ax]->GetBinLowEdge(1));
-				numEntry[ax][2]->SetNumber(axes[ax]->GetBinLowEdge(nbins+1));
+					// bins & range
+					Int_t nbins = axes[ax]->GetNbins();
+					numEntry[ax][0]->SetNumber(nbins);
+					numEntry[ax][1]->SetNumber(axes[ax]->GetBinLowEdge(1));
+					numEntry[ax][2]->SetNumber(axes[ax]->GetBinLowEdge(nbins+1));
+				}
 			}
+		} else { // summary hist
+			TAxis* axis = dynamic_cast<rb::hist::Summary*>(hist)->GetOrientation() ?
+				hist->GetXaxis() : hist->GetYaxis();
+			int ax = 0;
+			boxes[ax]->GetTextEntry()->SetText(hist->GetParam(ax).c_str());
+
+			// bins & range
+			Int_t nbins = axis->GetNbins();
+			numEntry[ax][0]->SetNumber(nbins);
+			numEntry[ax][1]->SetNumber(axis->GetBinLowEdge(1));
+			numEntry[ax][2]->SetNumber(axis->GetBinLowEdge(nbins+1));
 		}
 	}
+
 
 /*
 	TGComboBox* par_boxes[] = { rb::Rint::gApp()->fHistFrame->fParamX, rb::Rint::gApp()->fHistFrame->fParamY, rb::Rint::gApp()->fHistFrame->fParamZ };

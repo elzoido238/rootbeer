@@ -111,6 +111,16 @@ Int_t StopUpdate();
 //! \brief
 Int_t GetUpdateRate();
 
+/// \brief Save all canvases to web
+void SaveAllToWeb();
+
+/// \brief Set web file location
+/// \details Argument of "" means no web output
+void SetWebFile(const char* file = "");
+
+/// \brief Returns web file location
+std::string GetWebFile();
+
 } // namespace canvas
 
 /// Wraps classes and functions relevant to the access of data and methods of user classes.

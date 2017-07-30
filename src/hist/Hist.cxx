@@ -467,8 +467,8 @@ rb::hist::Scaler::Scaler(const char* name, const char* title, const char* param,
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
 // void rb::hist::Scaler::Clear() [virtual]              //
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
-void rb::hist::Scaler::Clear() {
-	rb::hist::Base::Clear();
+void rb::hist::Scaler::Clear(Option_t* option) {
+	rb::hist::Base::Clear(option);
 	fNumEvents = 0;
 }
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//

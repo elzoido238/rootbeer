@@ -1254,7 +1254,7 @@ virtual void SetMarkerStyle(Style_t mstyle = 1)
   rb::ScopedLock<rb::Mutex> LOCK (TTHREAD_GLOBAL_MUTEX);
   return AS_TH1->SetMarkerStyle(mstyle);
 }
-virtual Option_t* GetDrawOption()
+virtual Option_t* GetDrawOption() const
 {
   rb::ScopedLock<rb::Mutex> LOCK (TTHREAD_GLOBAL_MUTEX);
   return AS_TH1->GetDrawOption();

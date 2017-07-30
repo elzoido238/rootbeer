@@ -2,6 +2,7 @@
 //! \brief Implements canvas updating functions.
 //! \details Also defines a number of internal functions to be called by the
 //! user ones.
+#include <fstream>
 #include <TCanvas.h>
 #include <TArrayL.h>
 #include <TArrayL64.h>
@@ -11,7 +12,7 @@
 #include "hist/Hist.hxx"
 #include "utils/Timer.hxx"
 #include "utils/Error.hxx"
-
+#include "utils/Assorted.hxx"
 
 
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
@@ -24,6 +25,8 @@ const Int_t kMaxRate = 1;
 
 // The rate at which canvases are updated (in seconds).
 Int_t gUpdateRate = 0;
+
+std::string gWebLocation = "";
 
 // Update whatever histograms are on the current canvas/pad,
 // including any sub-pads owned by this one.
@@ -106,8 +109,6 @@ UpdateTimer gUpdateTimer;
 
 } // namespace 
 
-
-
 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
 // Implementation of functions in the                    //
 // rb::canvas namespace                                  //
@@ -137,6 +138,10 @@ void rb::canvas::UpdateAll() {
 	if(gPad) {
 		gPad->Modified();
 		gPad->Update();
+	}
+
+	if(1) {
+		SaveAllToWeb(); // only does something if gWebLocation is set
 	}
 }
 
@@ -256,4 +261,71 @@ void rb::canvas::ClearAll() {
 		ClearPad(reinterpret_cast<TVirtualPad*>(allPads[i]));
 	}
 #endif
+}
+
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+// void rb::canvas::SetWebFile()     //
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+void rb::canvas::SetWebFile(const char* file) {
+	if(file) gWebLocation = file;
+	else gWebLocation = "";
+}
+
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+// void rb::canvas::GetWebFile()     //
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+std::string rb::canvas::GetWebFile() {
+	return gWebLocation;
+}
+
+namespace { inline std::string fname_(TCanvas* c, std::string dirname) {
+	return (dirname + "/" + std::string(c->GetName()) + ".gif");
+} }
+
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+// void rb::canvas::SaveAllToWeb()   //
+//\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\//
+void rb::canvas::SaveAllToWeb()
+{
+	if(GetWebFile().empty())
+		return;
+
+	std::vector<TCanvas*> vCanvas;
+	std::string dirname = GetWebFile().substr(0, GetWebFile().rfind("/"));
+
+	for(int i=0; i< gROOT->GetListOfCanvases()->GetEntries(); ++i) {
+		TCanvas* c = dynamic_cast<TCanvas*>(gROOT->GetListOfCanvases()->At(i));
+		if(!c) continue;
+
+		vCanvas.push_back(c);
+		TErrorIgnore ei(9001);
+		c->SaveAs( fname_(c, dirname).c_str() );
+	}
+
+	std::ofstream ofs(GetWebFile().c_str(), std::ios::out);
+	const int UPDATE_RATE = 5;
+
+	ofs
+		<< "<html>\n"
+		<< "<meta http-equiv=\"refresh\" content=\"" << UPDATE_RATE << "\">\n"
+		<< "<head>\n"
+		<< "<title>ROOTBEER CANVAS VIEWER</title>\n"
+		<< "\n"
+		<< "<h1>ROOTBEER CANVAS VIEWER</h1>\n"
+		<< "</head>\n"
+		<< "\n"
+		<< "<body>\n";
+
+	for(size_t i=0; i< vCanvas.size(); ++i) {
+		TCanvas* c = vCanvas.at(i);
+		ofs 
+			<< "<br>\n"
+			<< "<img src=\"" << c->GetTitle() << ".gif\">\n"
+			<< "<p>\n";
+	}
+
+	ofs
+		<< "</body>\n"
+		<< "\n"
+		<< "</html>\n";
 }
