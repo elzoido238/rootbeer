@@ -47,7 +47,7 @@ void rb::Signals::UpdateBufferCounter(Int_t n, Bool_t force) {
 void rb::Signals::SaveData() {
 	EnableSaveHists();
 	if(rb::Rint::gApp()->fRbeerFrame->fSaveData->IsOn()) {
-	        rb::Rint::gApp()->StartSave(rb::Rint::gApp()->fRbeerFrame->fSaveHist->IsOn());
+			rb::Rint::gApp()->StartSave(rb::Rint::gApp()->fRbeerFrame->fSaveHist->IsOn());
 	}
 	else {
 		rb::Rint::gApp()->StopSave();
@@ -56,12 +56,12 @@ void rb::Signals::SaveData() {
 
 void rb::Signals::SaveHists() {
 	if(rb::Rint::gApp()->fRbeerFrame->fSaveData->IsOn()) {
-	        rb::Rint::gApp()->StartSave(rb::Rint::gApp()->fRbeerFrame->fSaveHist->IsOn());
+			rb::Rint::gApp()->StartSave(rb::Rint::gApp()->fRbeerFrame->fSaveHist->IsOn());
 	}
 }
 
 void rb::Signals::SetFilterCondition(Int_t key, std::string filter) {
-        rb::Rint::gApp()->SetFilterCondition(key, filter);
+		rb::Rint::gApp()->SetFilterCondition(key, filter);
 }
 
 void rb::Signals::EnableSaveHists() {
@@ -137,7 +137,7 @@ void rb::Signals::ClearCurrent() {
 		gPad->GetCanvas()->Clear();
 		gPad->Modified();
 		gPad->Update();
-	}	
+	}
 }
 void rb::Signals::CreateNew() {
 	std::string name = rb::Rint::gApp()->fRbeerFrame->fEntryName->GetText();
@@ -189,9 +189,9 @@ void get_end_pads(TPad* canvas) {
 		TPad* pad = dynamic_cast<TPad*>(primitives->At(i));
 		if(!pad) continue;
 		if(!is_divided(pad))
-			 pads.insert(std::make_pair<std::string, TPad*>(pad->GetName(), pad));
+			 pads.insert(std::make_pair(pad->GetName(), pad));
 		else {
-			pads.insert(std::make_pair<std::string, TPad*>(pad->GetName(), pad));
+			pads.insert(std::make_pair(pad->GetName(), pad));
 			get_end_pads(pad);
 		}
 	}
@@ -200,12 +200,12 @@ void rb::Signals::SyncCanvases() {
 	pads.clear();
 	for(int i=0; i< gROOT->GetListOfCanvases()->GetEntries(); ++i) {
 		TPad* pad = dynamic_cast<TPad*>(gROOT->GetListOfCanvases()->At(i));
-		/*if(!is_divided(pad))*/ pads.insert(std::make_pair<std::string, TPad*>(pad->GetName(), pad));
+		/*if(!is_divided(pad))*/ pads.insert(std::make_pair(pad->GetName(), pad));
 		get_end_pads(pad);
 	}
 }
 
-namespace { 
+namespace {
 bool gpad_log_x() { return gPad->GetLogx(); }
 bool gpad_log_y() { return gPad->GetLogy(); }
 bool gpad_log_z() { return gPad->GetLogz(); }
@@ -222,7 +222,7 @@ void rb::Signals::ToggleLog(Int_t axis) {
 		std::cerr << "Invalid axis: " << axis << "! ::" << __FILE__ << ", " << __LINE__ << "\n";
 		return;
 	}
-	
+
 	TGCheckButton* logButtons[3] =
 		{ 0, rb::Rint::gApp()->fRbeerFrame->fLogy, rb::Rint::gApp()->fRbeerFrame->fLogz };
 	bool isAxisLog = isLog[axis]();
@@ -278,13 +278,13 @@ void rb::Signals::PopulateEvents() {
 void rb::Signals::SetFilter() {
   std::string filter = rb::Rint::gApp()->fRbeerFrame->fFilterEntry->GetText();
   Int_t filter_type = rb::Rint::gApp()->fRbeerFrame->fFilterType->GetSelected();
-  
+
   rb::Rint::gApp()->SetFilterCondition(filter_type, filter);
-  
+
   TGTextLBEntry *filter_text_entry = (TGTextLBEntry *)rb::Rint::gApp()->fRbeerFrame->fFilterType->GetSelectedEntry();
   std::string filter_text = filter_text_entry->GetTitle();
   cout << "Filter type: " << filter_text << ".\tValue: " << filter << ".\n";
-  
+
 }
 
 
@@ -554,7 +554,7 @@ void rb::HistSignals::recurse_directory(TDirectory* dir, TGListTreeItem* item) {
 	const TGPicture *p_hist = gClient->GetPicture("h1_t.xpm");
   for(Int_t i=0; i< dir->GetList()->GetEntries(); ++i) {
 		rb::hist::Base* hist = dynamic_cast<rb::hist::Base*>(dir->GetList()->At(i));
-    if(hist) {
+	if(hist) {
 			TGListTreeItem* hist_item = rb::Rint::gApp()->fHistFrame->fHistTree->AddItem(item, hist->GetName(), p_hist, p_hist);
 			hist_map.insert(std::make_pair(hist_item, hist));
 		}
@@ -567,8 +567,8 @@ void rb::HistSignals::recurse_directory(TDirectory* dir, TGListTreeItem* item) {
 			TGListTreeItem* this_ = rb::Rint::gApp()->fHistFrame->fHistTree->AddItem(item, directory->GetName(), p_ofolder, p_folder);
 			directory_map.insert(std::make_pair(this_, directory));
 			this_->SetOpen(true);
-      recurse_directory(directory, this_);
-    }
+	  recurse_directory(directory, this_);
+	}
   }
 }
 
@@ -682,7 +682,7 @@ void rb::HistSignals::SyncHistMenu(rb::hist::Base* hist) {
 	else { // bit
 		rb::Rint::gApp()->fHistFrame->fTypeEntry->Select(9);
 		code = 9;
-	}	
+	}
 
 	rb::Rint::gApp()->fHistFrame->fNameEntry->SetText(hist->GetName());
 	if(!hist->UseDefaultTitle()) {
@@ -702,7 +702,7 @@ void rb::HistSignals::SyncHistMenu(rb::hist::Base* hist) {
 	{
 		// Set option to "colz" if 2d
 		if(hist->InheritsFrom(rb::hist::D2::Class()) ||
-			 hist->InheritsFrom(rb::hist::Summary::Class())) 
+			 hist->InheritsFrom(rb::hist::Summary::Class()))
 		{
 			rb::Rint::gApp()->fHistFrame->fDrawOptionEntry->SetText("colz");
 		}
@@ -714,7 +714,7 @@ void rb::HistSignals::SyncHistMenu(rb::hist::Base* hist) {
 			rb::Rint::gApp()->fHistFrame->fParamZ
 		};
 		TAxis* axes[3] = { hist->GetXaxis(), hist->GetYaxis(), hist->GetZaxis() };
-		TGNumberEntryField* numEntry[3][3] = { 
+		TGNumberEntryField* numEntry[3][3] = {
 			{ rb::Rint::gApp()->fHistFrame->fBinsX, rb::Rint::gApp()->fHistFrame->fLowX, rb::Rint::gApp()->fHistFrame->fHighX },
 			{ rb::Rint::gApp()->fHistFrame->fBinsY, rb::Rint::gApp()->fHistFrame->fLowY, rb::Rint::gApp()->fHistFrame->fHighY },
 			{ rb::Rint::gApp()->fHistFrame->fBinsZ, rb::Rint::gApp()->fHistFrame->fLowZ, rb::Rint::gApp()->fHistFrame->fHighZ },
@@ -724,7 +724,7 @@ void rb::HistSignals::SyncHistMenu(rb::hist::Base* hist) {
 			if(boxes[ax] && boxes[ax]->GetTextEntry()) {
 				// params
 				boxes[ax]->GetTextEntry()->SetText(hist->GetParam(ax).c_str());
-				
+
 				// bins & range
 				Int_t nbins = axes[ax]->GetNbins();
 				numEntry[ax][0]->SetNumber(nbins);
@@ -761,35 +761,35 @@ void rb::HistSignals::HistTreeItemClicked(TGListTreeItem* item, Int_t btn) {
 
 		// // Set option to "colz" if 2d
 		// if(hist->InheritsFrom(rb::hist::D2::Class()) ||
-		// 	 hist->InheritsFrom(rb::hist::Summary::Class())) 
+		//	 hist->InheritsFrom(rb::hist::Summary::Class()))
 		// {
-		// 	rb::Rint::gApp()->fHistFrame->fDrawOptionEntry->SetText("colz");
+		//	rb::Rint::gApp()->fHistFrame->fDrawOptionEntry->SetText("colz");
 		// }
 
 		// // Populate parameter box w/ correct params
 		// TGComboBox* boxes[3] = {
-		// 	rb::Rint::gApp()->fHistFrame->fParamX,
-		// 	rb::Rint::gApp()->fHistFrame->fParamY,
-		// 	rb::Rint::gApp()->fHistFrame->fParamZ
+		//	rb::Rint::gApp()->fHistFrame->fParamX,
+		//	rb::Rint::gApp()->fHistFrame->fParamY,
+		//	rb::Rint::gApp()->fHistFrame->fParamZ
 		// };
 		// TAxis* axes[3] = { hist->GetXaxis(), hist->GetYaxis(), hist->GetZaxis() };
-		// TGNumberEntryField* numEntry[3][3] = { 
-		// 	{ rb::Rint::gApp()->fHistFrame->fBinsX, rb::Rint::gApp()->fHistFrame->fLowX, rb::Rint::gApp()->fHistFrame->fHighX },
-		// 	{ rb::Rint::gApp()->fHistFrame->fBinsY, rb::Rint::gApp()->fHistFrame->fLowY, rb::Rint::gApp()->fHistFrame->fHighY },
-		// 	{ rb::Rint::gApp()->fHistFrame->fBinsZ, rb::Rint::gApp()->fHistFrame->fLowZ, rb::Rint::gApp()->fHistFrame->fHighZ },
+		// TGNumberEntryField* numEntry[3][3] = {
+		//	{ rb::Rint::gApp()->fHistFrame->fBinsX, rb::Rint::gApp()->fHistFrame->fLowX, rb::Rint::gApp()->fHistFrame->fHighX },
+		//	{ rb::Rint::gApp()->fHistFrame->fBinsY, rb::Rint::gApp()->fHistFrame->fLowY, rb::Rint::gApp()->fHistFrame->fHighY },
+		//	{ rb::Rint::gApp()->fHistFrame->fBinsZ, rb::Rint::gApp()->fHistFrame->fLowZ, rb::Rint::gApp()->fHistFrame->fHighZ },
 		// };
 
 		// for(UInt_t ax = 0; ax < hist->GetNdimensions(); ++ax) {
-		// 	if(boxes[ax] && boxes[ax]->GetTextEntry()) {
-		// 		// params
-		// 		boxes[ax]->GetTextEntry()->SetText(hist->GetParam(ax).c_str());
-				
-		// 		// bins & range
-		// 		Int_t nbins = axes[ax]->GetNbins();
-		// 		numEntry[ax][0]->SetNumber(nbins);
-		// 		numEntry[ax][1]->SetNumber(axes[ax]->GetBinLowEdge(1));
-		// 		numEntry[ax][2]->SetNumber(axes[ax]->GetBinLowEdge(nbins+1));
-		// 	}
+		//	if(boxes[ax] && boxes[ax]->GetTextEntry()) {
+		//		// params
+		//		boxes[ax]->GetTextEntry()->SetText(hist->GetParam(ax).c_str());
+
+		//		// bins & range
+		//		Int_t nbins = axes[ax]->GetNbins();
+		//		numEntry[ax][0]->SetNumber(nbins);
+		//		numEntry[ax][1]->SetNumber(axes[ax]->GetBinLowEdge(1));
+		//		numEntry[ax][2]->SetNumber(axes[ax]->GetBinLowEdge(nbins+1));
+		//	}
 		// }
 	}
 	else if (directory_map.count(item)) Cd(item, btn);
@@ -941,11 +941,11 @@ void rb::HistSignals::WriteConfig(Int_t which) {
 			break;
 		case WRITE_ALL:
 			rb::WriteConfigXML(fileInfo.fFilename, false);
-			break;			
+			break;
 		default:
 			break;
 		}
- 	}
+	}
 }
 
 void rb::HistSignals::ReadConfig(Bool_t type_prompt) {
@@ -962,7 +962,7 @@ void rb::HistSignals::ReadConfig(Bool_t type_prompt) {
 	else {
 		which = -1;
 		std::string arr_names[3] = { "Reset", "Overwrite", "Cumulate" };
-		std::vector<std::string> names(arr_names, arr_names+3);	
+		std::vector<std::string> names(arr_names, arr_names+3);
 		new TGSelectDialog(gClient->GetRoot(), 0, "Select Method:", "Select Method", &names, &which);
 		if(which < 0) return;
 	}
@@ -996,7 +996,7 @@ void rb::HistSignals::ReadHistConfig(Bool_t type_prompt) {
 	else {
 		which = -1;
 		std::string arr_names[3] = { "Reset", "Overwrite", "Cumulate" };
-		std::vector<std::string> names(arr_names, arr_names+3);	
+		std::vector<std::string> names(arr_names, arr_names+3);
 		new TGSelectDialog(gClient->GetRoot(), 0, "Select Method:", "Select Method", &names, &which);
 		if(which < 0) return;
 	}
