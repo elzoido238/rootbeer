@@ -1,41 +1,44 @@
-DEF_FILE_DIR=-DRB_DEFAULT_FILE_DIRECTORY=\"/expdata/dragon/DAQ_test/\"
-DEF_SAVE_DIR=-DRB_DEFAULT_SAVE_DIRECTORY=\"/expdata/dragon/DAQ_test/rootfiles\"
-DEF_CONFIG_DIR=-DRB_DEFAULT_CONFIG_DIRECTORY=\"/Users/dragon/packages/rootbeer/config\"
-DEFAULTS=$(DEF_FILE_DIR) $(DEF_SAVE_DIR) $(DEF_CONFIG_DIR)
+include Makefile2
+
+DEF_FILE_DIR   = -DRB_DEFAULT_FILE_DIRECTORY=\"/expdata/dragon/DAQ_test/\"
+DEF_SAVE_DIR   = -DRB_DEFAULT_SAVE_DIRECTORY=\"/expdata/dragon/DAQ_test/rootfiles\"
+DEF_CONFIG_DIR = -DRB_DEFAULT_CONFIG_DIRECTORY=\"/Users/dragon/packages/rootbeer/config\"
+DEFAULTS       = $(DEF_FILE_DIR) $(DEF_SAVE_DIR) $(DEF_CONFIG_DIR)
 
 ### Variable definitions
-SRC=$(PWD)/src
-OBJ=$(PWD)/obj
-CINT=$(PWD)/cint
-RBLIB=$(PWD)/lib
+SRC   = $(PWD)/src
+OBJ   = $(PWD)/obj
+CINT  = $(PWD)/cint
+RBLIB = $(PWD)/lib
 
-INCFLAGS=-I$(SRC)
-OPTIMIZE=-O3
-DEBUG= -DDEBUG
+INCFLAGS += -I$(SRC)
+OPTIMIZE  =-O3
+DEBUG     = -DDEBUG
 #-DRB_LOGGING
 
-ROOTLIBS:= $(shell root-config --glibs) -lXMLParser -lThread -lTreePlayer
-ROOTFLAGS:= $(shell root-config --cflags)
+# ROOTLIBS:= $(shell root-config --glibs) -lXMLParser -lThread -lTreePlayer
+# ROOTFLAGS:= $(shell root-config --cflags)
 
-UNAME=$(shell uname)
-ifeq ($(UNAME),Darwin)
-DYLIB=-dynamiclib -single_module -undefined dynamic_lookup 
-FPIC=
-RPATH=
-else
-DYLIB=-shared
-FPIC=-fPIC
-RPATH=-Wl,-rpath,$(ROOTSYS)/lib -Wl,-rpath,$(PWD)/lib
-endif
+# UNAME=$(shell uname)
+# ifeq ($(UNAME),Darwin)
+# DYLIB=-dynamiclib -single_module -undefined dynamic_lookup
+# FPIC=
+# RPATH=
+# else
+# DYLIB = -shared
+# FPIC=-fPIC
+# RPATH=-Wl,-rpath,$(ROOTSYS)/lib -Wl,-rpath,$(PWD)/lib
+# endif
 
-CXXFLAGS=$(DEBUG) -ggdb $(OPTIMIZE) $(INCFLAGS) $(ROOTFLAGS) $(DEFAULTS)
-LDFLAGS=$(DYLIB) $(FPIC) $(RPATH)
-LIBS=$(ROOTLIBS) -L$(PWD)/lib
+CXXFLAGS += $(DEBUG) -ggdb $(OPTIMIZE) $(INCFLAGS) $(DEFAULTS)
+LDFLAGS  += $(DYLIB) $(FPIC) $(RPATH)
+LIBS      = $(ROOTGLIBS) -L$(PWD)/lib
+CINTFLAGS = $(filter-out ($(ROOTCFLAGS)), $(CXXFLAGS))
 
 #CXX=g++ -Wall
 CXX += $(CXXFLAGS)
 
-LINK=$(CXX) $(LIBS) $(RPATH)
+LINK = $(CXX) $(LIBS) $(RPATH)
 
 
 #### MAIN PROGRAM ####
@@ -44,20 +47,22 @@ all:  $(RBLIB)/libRootbeer.so $(RBLIB)/librbMidas.so
 #### ROOTBEER LIBRARY ####
 SOURCES=($shell ls $(SRC)/*.cxx $(SRC)/hist/*.cxx
 
-OBJECTS=$(OBJ)/mxml/mxml.o $(OBJ)/mxml/strlcpy.o $(OBJ)/hist/Hist.o $(OBJ)/hist/Manager.o \
-$(OBJ)/Formula.o $(OBJ)/ClassFormula.o $(OBJ)/ClassData.o \
-$(OBJ)/Data.o $(OBJ)/Event.o $(OBJ)/Attach.o $(OBJ)/Canvas.o $(OBJ)/WriteConfig.o \
-$(OBJ)/Rint.o $(OBJ)/Signals.o $(OBJ)/Rootbeer.o $(OBJ)/Gui.o $(OBJ)/HistGui.o \
-$(OBJ)/TGSelectDialog.o $(OBJ)/TGDivideSelect.o $(OBJ)/Main.o
+OBJECTS = $(OBJ)/mxml/mxml.o $(OBJ)/mxml/strlcpy.o $(OBJ)/hist/Hist.o $(OBJ)/hist/Manager.o \
+$(OBJ)/Formula.o $(OBJ)/ClassFormula.o $(OBJ)/ClassData.o $(OBJ)/Data.o $(OBJ)/Event.o \
+$(OBJ)/Attach.o $(OBJ)/Canvas.o $(OBJ)/WriteConfig.o $(OBJ)/Rint.o $(OBJ)/Signals.o \
+$(OBJ)/Rootbeer.o $(OBJ)/Gui.o $(OBJ)/HistGui.o $(OBJ)/TGSelectDialog.o \
+$(OBJ)/TGDivideSelect.o $(OBJ)/Main.o
 
-HEADERS=$(SRC)/Main.hxx $(SRC)/Rootbeer.hxx $(SRC)/Rint.hxx $(SRC)/Data.hxx $(SRC)/Buffer.hxx $(SRC)/Attach.hxx $(SRC)/Event.hxx \
-$(SRC)/Signals.hxx $(SRC)/Formula.hxx $(SRC)/ClassFormula.hxx $(SRC)/ClassData.hxx \
-$(SRC)/utils/LockingPointer.hxx $(SRC)/utils/Mutex.hxx \
-$(SRC)/hist/Hist.hxx $(SRC)/hist/Visitor.hxx $(SRC)/hist/Manager.hxx $(SRC)/TGSelectDialog.h $(SRC)/TGDivideSelect.h \
-$(SRC)/HistGui.hxx $(SRC)/Gui.hxx $(SRC)/utils/*.h* $(SRC)/mxml/*.hxx
+HEADERS = $(SRC)/Main.hxx $(SRC)/Rootbeer.hxx $(SRC)/Rint.hxx $(SRC)/Data.hxx \
+$(SRC)/Buffer.hxx $(SRC)/Attach.hxx $(SRC)/Event.hxx $(SRC)/Signals.hxx \
+$(SRC)/Formula.hxx $(SRC)/ClassFormula.hxx $(SRC)/ClassData.hxx \
+$(SRC)/utils/LockingPointer.hxx $(SRC)/utils/Mutex.hxx $(SRC)/hist/Hist.hxx \
+$(SRC)/hist/Visitor.hxx $(SRC)/hist/Manager.hxx $(SRC)/TGSelectDialog.h \
+$(SRC)/TGDivideSelect.h $(SRC)/HistGui.hxx $(SRC)/Gui.hxx $(SRC)/utils/*.h* $(SRC)/mxml/*.hxx
 
 
 RBlib: $(RBLIB)/libRootbeer.so
+
 $(RBLIB)/libRootbeer.so: $(CINT)/RBDictionary.cxx $(OBJECTS)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(CINT)/RBDictionary.cxx $(LIBS) \
 -o $@ \
@@ -79,18 +84,24 @@ $(OBJ)/%.o: $(SRC)/%.cxx $(CINT)/RBDictionary.cxx
 -o $@  \
 
 RBdict: $(CINT)/RBDictionary.cxx
+
 $(CINT)/RBDictionary.cxx:  $(HEADERS) $(CINT)/Linkdef.h \
 $(SRC)/utils/Mutex.hxx $(SRC)/utils/LockingPointer.hxx $(SRC)/utils/Assorted.hxx $(SRC)/hist/*.hxx
-	rootcint -f $@ -c $(CXXFLAGS) -p $(HEADERS) $(CINT)/Linkdef.h \
+ifeq ($(ROOTMAJORVERSION),6)
+	$(ROOTCINT) -f $@ -s $(SHLIBFILE) -rml $(SHLIBFILE) -rmf $(ROOTMAPFILE) -c $(CINTFLAGS) \
+	-p $(HEADERS) $(CINT)/Linkdef.h
+else
+	$(ROOTCINT) -f $@ -c $(CINTFLAGS) -p $(HEADERS) $(CINT)/Linkdef.h
+endif
 
 
 ### librbMidas.so ###
-MIDAS_SOURCES=$(shell ls $(SRC)/midas/*.cxx)
-MIDAS_HEADERS1=$(shell ls $(SRC)/midas/*.h $(SRC)/midas/*.hxx)
-MIDAS_HEADERS=$(MIDAS_HEADERS1:$(SRC)/midas/MidasLinkdef.h= )
-MIDAS_OBJECTS0=$(MIDAS_SOURCES:$(SRC)/midas/TMidasOnline.cxx= )
-MIDAS_OBJECTS1=$(MIDAS_OBJECTS0:.cxx=.o)
-MIDAS_OBJECTS:=$(addprefix $(OBJ)/midas/, $(notdir $(MIDAS_OBJECTS1)))
+MIDAS_SOURCES  = $(shell ls $(SRC)/midas/*.cxx)
+MIDAS_HEADERS1 = $(shell ls $(SRC)/midas/*.h $(SRC)/midas/*.hxx)
+MIDAS_HEADERS  = $(MIDAS_HEADERS1:$(SRC)/midas/MidasLinkdef.h= )
+MIDAS_OBJECTS0 = $(MIDAS_SOURCES:$(SRC)/midas/TMidasOnline.cxx= )
+MIDAS_OBJECTS1 = $(MIDAS_OBJECTS0:.cxx=.o)
+MIDAS_OBJECTS := $(addprefix $(OBJ)/midas/, $(notdir $(MIDAS_OBJECTS1)))
 
 # optional MIDAS libraries
 UNAME=$(shell uname)
@@ -110,12 +121,13 @@ endif
 endif
 
 librbMidas: $(RBLIB)/librbMidas.so
+
 $(RBLIB)/librbMidas.so: $(MIDAS_OBJECTS) $(CINT)/MidasDict.cxx
 	$(CXX) $(LDFLAGS) $(MIDAS_OBJECTS) $(CINT)/MidasDict.cxx \
 -o $@ \
 
 $(CINT)/MidasDict.cxx: $(MIDAS_HEADERS) $(SRC)/midas/MidasLinkdef.h
-	rootcint -f $@ -c $(CXXFLAGS) -p $(MIDAS_HEADERS) $(SRC)/midas/MidasLinkdef.h \
+	$(ROOTCINT) -f $@ -c $(CINTFLAGS) -p $(MIDAS_HEADERS) $(SRC)/midas/MidasLinkdef.h \
 
 
 #### REMOVE EVERYTHING GENERATED BY MAKE ####

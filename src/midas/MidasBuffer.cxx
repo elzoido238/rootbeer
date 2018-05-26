@@ -11,7 +11,13 @@
 #include "midas.h"
 #endif
 
-
+#ifndef ASYNC
+#ifdef  BM_NO_WAIT
+#define ASYNC BM_NO_WAIT
+#else
+#define ASYNC 1
+#endif
+#endif
 
 rb::MidasBuffer* rb::MidasBuffer::fgInstance = 0;
 
@@ -172,7 +178,7 @@ Bool_t rb::MidasBuffer::ConnectOnline(const char* host, const char* experiment, 
 	}
 
 	/// - Connect to "SYSTEM" shared memory buffer
-  status = bm_open_buffer(systembuf, 2*MAX_EVENT_SIZE, &fBufferHandle);
+  status = bm_open_buffer(systembuf, 2*DEFAULT_MAX_EVENT_SIZE, &fBufferHandle);
 	if (status != CM_SUCCESS) {
 		err::Error("rb::MidasBuffer::ConnectOnline")
 			<< "Error opening \"" << systembuf << "\" shared memory buffer, status = "
