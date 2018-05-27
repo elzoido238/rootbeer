@@ -19,12 +19,16 @@ rb::Rint::Rint(const char* appClassName, int* argc, char** argv,
   TRint(appClassName, argc, argv, options, numOptions, kTRUE),
 	fSignals(0), fHistSignals(0),
 	fSaveData(false), fSaveHists(false) {
-        RegisterEvents();
-        SetPrompt("rootbeer [%d] ");
-        PrintLogo(liteLogo);
-        std::cout << fMessage.str() << std::endl;
-
 	std::set<std::string> flags(argv, argv + *argc);
+
+	RegisterEvents();
+	SetPrompt("rootbeer [%d] ");
+
+	if(!flags.count("--quiet")) {
+		PrintLogo(liteLogo);
+		std::cout << fMessage.str() << std::endl;
+	}
+
 	if(!(flags.count("-ng") || !gClient)) InitGui();
 
 	for(EventMap_t::iterator it = fEvents.begin(); it != fEvents.end(); ++it) {

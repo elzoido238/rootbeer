@@ -323,7 +323,19 @@ void rb::OnlineAttach::Stop() {
 	}	
 }
 
+
+#define RB_TIMER_RETURN do { --ncalls; return; } while(0)
+
 void rb::OnlineAttach::TimerAction() {
+
+	// Keep track of recursive calls to preventcalls from TSystem::ProcessEvents (e.g. bacause a
+	// transient window calls WaitFor()) from calling ConnectOnline recursively.
+	static int ncalls = 0;
+	if(ncalls) {
+		return;
+	}
+	++ncalls;
+
 	if(!fBuffer.get()) {
 		fNbuffers = 0;
 		fBuffer.reset(BufferSource::New());
@@ -331,13 +343,12 @@ void rb::OnlineAttach::TimerAction() {
 			fBuffer->ConnectOnline(fSourceArg, fOtherArg, fOtherArgs, fNumOthers);
 		if (!connected) {
 			fTimer->TurnOff();
-			return;
+			RB_TIMER_RETURN;
 		}
 	}
 
 	if(Rint::gApp()->GetSignals())
 		 Rint::gApp()->GetSignals()->AttachedOnline(fSourceArg);
-
 
 	rb::Timeout timeout(READ_TIME);
   while (1) {
@@ -348,9 +359,11 @@ void rb::OnlineAttach::TimerAction() {
 			Rint::gApp()->GetSignals()->UpdateBufferCounter(fNbuffers++);
 		}
 
-		if(timeout.Check())
-			return; // yield
+		if(timeout.Check()) {
+			RB_TIMER_RETURN; // yield
+		}
   }
 
 	fTimer->TurnOff();
-};
+	RB_TIMER_RETURN;
+}

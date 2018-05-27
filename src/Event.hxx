@@ -185,8 +185,9 @@ public:
 	/// \brief Functor class to for calling BeginRun()
 	/// \details Used in Buffer.cxx when attaching to a new data source, as an argument
 	/// to std::for_each
-	struct RunBegin
+	class RunBegin
 	{
+ public:
 		/// operator(), used in std::for_each on a vector of std::pair<event code (int), event name (string)>
 		void operator() (const std::pair<Int_t, std::string>&);
 	};
