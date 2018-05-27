@@ -2,6 +2,7 @@ analyzer
 cint/*Dict*.cxx
 cint/*Dict*.h
 config
+config.mk
 data
 doxygen/.DS_Store
 doxygen/Doxyfile.bak
